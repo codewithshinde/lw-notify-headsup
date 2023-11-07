@@ -1,3 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.lwnotifyheadsup">
+  package="com.lwnotifyheadsup">
+
+  <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />
+  <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+  <application>
+    <activity
+      android:name=".FullScreenNotification"
+      android:exported="false" />
+
+    <service
+      android:name=".LwNotifyService"
+      android:enabled="true"
+      android:exported="true" />
+    <service
+      android:name=".FullScreenNotifyService"
+      android:exported="false" />
+  </application>
+
 </manifest>
