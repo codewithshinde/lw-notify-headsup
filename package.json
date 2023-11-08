@@ -1,6 +1,6 @@
 {
   "name": "react-native-lw-notify-headsup",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "fullscreen notifications in react-native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -39,13 +39,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/codewithshinde/react-native-lw-notify-headsup",
+  "repository": "https://github.com/codewithshinde/lw-notify-headsup",
   "author": "codewithshinde <codewithshinde@gmail.com> (https://github.com/codewithshinde)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/codewithshinde/react-native-lw-notify-headsup/issues"
+    "url": "https://github.com/codewithshinde/lw-notify-headsup/issues"
   },
-  "homepage": "https://github.com/codewithshinde/react-native-lw-notify-headsup#readme",
+  "homepage": "https://github.com/codewithshinde/lw-notify-headsup#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

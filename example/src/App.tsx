@@ -15,7 +15,7 @@ export default function App() {
       notificationId: '3432drd',
       notificationTitle: 'ORDER ALERT',
       notificationInfo: 'You can 40 sec to choose',
-      timeout: 10000,
+      timeout: 300000,
       icon: 'ic_launcher',
       acceptText: 'Accept',
       rejectText: 'Reject',
@@ -31,6 +31,9 @@ export default function App() {
       setResult(JSON.stringify(data));
     });
     LWNotify.addEventListener('answer', (data: any) => {
+      setResult(JSON.stringify(data));
+    });
+    LWNotify.addFullScreenEventListener('accept', (data: any) => {
       setResult(JSON.stringify(data));
     });
   };

@@ -82,6 +82,29 @@ class LWNotify {
     this.eventsHandler.set(type, listener);
   };
 
+  addFullScreenEventListener = (type: string, handler: any) => {
+    if (!isAndroid) return;
+    let listener;
+    if (type === 'accept') {
+      listener = eventEmitter.addListener(
+        RNNotifyActions.RNNotifyFullScreenAcceptAction,
+        (eventPayload: any) => {
+          handler(eventPayload);
+        }
+      );
+    } else if (type === 'reject') {
+      listener = eventEmitter.addListener(
+        RNNotifyActions.RNNotifyFullScreenRejectAction,
+        (eventPayload: any) => {
+          handler(eventPayload);
+        }
+      );
+    } else {
+      return;
+    }
+    this.eventsHandler.set(type, listener);
+  };
+
   removeEventListener = (type: any) => {
     if (!isAndroid) return;
     const listener = this.eventsHandler.get(type);
