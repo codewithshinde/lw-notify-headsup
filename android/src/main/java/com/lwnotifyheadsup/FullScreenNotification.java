@@ -32,10 +32,11 @@ public class FullScreenNotification extends AppCompatActivity {
     return instance;
   }
 
+
   @Override
   public void onStart() {
     super.onStart();
-    isNotificationActive=true;
+    isNotificationActive = true;
     instance = this;
   }
 
@@ -46,74 +47,77 @@ public class FullScreenNotification extends AppCompatActivity {
 
   @Override
   public void onDestroy() {
-    if(isNotificationActive) {
+    if (isNotificationActive) {
       //dismissIncoming(Constants.ACTION_REJECTED_CALL);
     }
     super.onDestroy();
   }
 
   public void destroyActivity() {
-    isNotificationActive=false;
+    isNotificationActive = false;
     if (android.os.Build.VERSION.SDK_INT >= 21) {
       finishAndRemoveTask();
     } else {
       finish();
     }
   }
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-        setShowWhenLocked(true);
-        setTurnScreenOn(true);
-        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-          if (keyguardManager.isDeviceLocked()) {
-            KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(TAG_KEYGUARD);
-            keyguardLock.disableKeyguard();
-          }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+      setShowWhenLocked(true);
+      setTurnScreenOn(true);
+      KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+      if (keyguardManager.isDeviceLocked()) {
+        KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(TAG_KEYGUARD);
+        keyguardLock.disableKeyguard();
       }
-      getWindow().addFlags(
-        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-          | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-          | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-          | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-          | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+    }
+    getWindow().addFlags(
+      WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
 
-        Bundle bundle = getIntent().getExtras();
+    Bundle bundle = getIntent().getExtras();
 
-        if(bundle.containsKey("customComponent") && bundle.getString("customComponent") != null) {
-          //handle custom notification
-        } else {
-          setContentView(R.layout.activity_full_screen_notification);
-        }
+    super.onCreate(savedInstanceState);
 
-        //TODO: add multiple fields to the UI
-        if (bundle != null) {
-          notificationId = findViewById(R.id.notificationId);
-          if (bundle.containsKey("notificationId")) {
-            String name = bundle.getString("notificationId");
-            notificationId.setText(name);
-          }
-        }
-
-        acceptButton = findViewById(R.id.acceptButton);
-        rejectButton = findViewById(R.id.rejectButton);
-
-        acceptButton.setOnClickListener(new View.OnClickListener(){
-          @Override
-          public void onClick(View view) {
-
-          }
-        });
+    if (bundle.containsKey("customComponent") && bundle.getString("customComponent") != null) {
+      //handle custom notification
+    } else {
+      setContentView(R.layout.activity_full_screen_notification);
     }
 
-    private void acceptActionHandler() {
-      WritableMap params = Arguments.createMap();
-      Bundle bundle = getIntent().getExtras();
-      if(bundle.containsKey("payload")){
-        params.putString("payload",bundle.getString("payload"));
+    //TODO: add multiple fields to the UI
+    if (bundle != null) {
+      notificationId = findViewById(R.id.notificationId);
+      if (bundle.containsKey("notificationId")) {
+        String name = bundle.getString("notificationId");
+        notificationId.setText(name);
       }
-      params.putString("notificationId", "TEST_123");
     }
+
+    acceptButton = findViewById(R.id.acceptButton);
+    rejectButton = findViewById(R.id.rejectButton);
+
+    acceptButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+
+      }
+    });
+  }
+
+  private void acceptActionHandler() {
+    WritableMap params = Arguments.createMap();
+    Bundle bundle = getIntent().getExtras();
+    if (bundle.containsKey("payload")) {
+      params.putString("payload", bundle.getString("payload"));
+    }
+    params.putString("notificationId", "TEST_123");
+  }
 
 }

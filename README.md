@@ -1,7 +1,7 @@
 # react-native-lw-notify-headsup
 
 fullscreen notifications in react-native
-
+git commit -m "feat(package): bump version to v0.1.1"
 ## Installation
 
 ```sh

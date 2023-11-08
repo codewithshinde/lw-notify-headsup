@@ -1,42 +1,43 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
-import {
-  multiply,
-  displayNotification,
-  displayFullScreenNotification,
-} from 'react-native-lw-notify-headsup';
+import LWNotify from 'react-native-lw-notify-headsup';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
-
-  React.useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
+  const [result, setResult] = React.useState<string>();
 
   const displayNotiee = () => {
-    displayNotification('22221a97-8eb4-4ac2-b2cf-0a3c0b9100ad', null, 30000, {
-      channelId: 'com.abc.incomingcall2',
-      channelName: 'Incoming video call',
-      notificationIcon: 'ic_launcher', //mipmap
-      notificationTitle: 'Linh Vo',
-      notificationBody: 'Incoming video call',
-      answerText: 'Answer',
-      declineText: 'Decline',
-      notificationColor: 'colorAccent',
+    LWNotify.displayNotification({
+      channelId: 'Channel123',
+      channelName: 'ChannelName',
       notificationSound: 'default',
+      notificationId: 'Notification123',
+      notificationTitle: 'ORDER ALERT',
+      notificationInfo: 'You can 30 sec to choose',
+      timeout: 6000,
+      icon: 'ic_launcher',
+      acceptText: 'Accept',
+      rejectText: 'Reject',
+      notificationColor: 'colorAccent',
+      payload: {
+        key1: 'value1',
+        key2: 'value2',
+      },
     });
-  };
 
-  const displayFullScreen = () => {
-    displayFullScreenNotification();
+    // Listen to headless action events
+    LWNotify.addEventListener('endCall', (data: any) => {
+      setResult(JSON.stringify(data));
+    });
+    LWNotify.addEventListener('answer', (data: any) => {
+      setResult(JSON.stringify(data));
+    });
   };
 
   return (
     <View style={styles.container}>
-      <Text>Resultssssssss3: {result}</Text>
+      <Text>Result payload: {result}</Text>
       <Button title="PRESS" onPress={displayNotiee} />
-      <Button title="FULL SCREEN" onPress={displayFullScreen} />
     </View>
   );
 }

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />
+  <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />
   <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>
