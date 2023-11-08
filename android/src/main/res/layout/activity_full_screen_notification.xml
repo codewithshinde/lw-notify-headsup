@@ -4,7 +4,7 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="#5EE91E63"
+  android:background="#5EFFFFFF"
   tools:context=".FullScreenNotification">
 
   <LinearLayout
@@ -37,7 +37,7 @@
       android:background="#009688"
       android:text="ACCEPT"
       android:textColor="#FFFFFF"
-      android:textSize="20sp"
+      android:textSize="24sp"
 
       />
 
@@ -49,7 +49,7 @@
       android:background="#E91E63"
       android:text="REJECT"
       android:textColor="#FFFFFF"
-      android:textSize="20sp"
+      android:textSize="24sp"
 
       />
 

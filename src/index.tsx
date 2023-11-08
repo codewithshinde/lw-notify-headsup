@@ -27,6 +27,8 @@ if (isAndroid) {
 enum RNNotifyActions {
   RNNotifyAcceptAction = 'RNNotifyAcceptAction',
   RNNotifyRejectAction = 'RNNotifyRejectAction',
+  RNNotifyFullScreenAcceptAction = 'RNNotifyFullScreenAcceptAction',
+  RNNotifyFullScreenRejectAction = 'RNNotifyFullScreenRejectAction',
 }
 
 interface NotificationData {

@@ -26,6 +26,8 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LwNotifyService extends Service {
   private static final String TAG = "LwNotifyService";
@@ -34,6 +36,15 @@ public class LwNotifyService extends Service {
   private Integer DEFAULT_TIME_OUT_LIMIT = 5000;
   private Bundle bundleData;
   private boolean isRegistered = false;
+
+  private Map<String, Integer> soundTypes = new HashMap<String, Integer>() {
+    {
+      put("type1", R.raw.type1);
+      put("type2", R.raw.type2);
+      put("type3", R.raw.type3);
+      put("type4", R.raw.type4);
+    }
+  };
 
   public LwNotifyService() {
   }
@@ -69,6 +80,7 @@ public class LwNotifyService extends Service {
     if (isRegistered) return;
     IntentFilter filter = new IntentFilter();
     filter.addAction(LwConstants.ACTION_REJECT);
+    filter.addAction(LwConstants.ACTION_ACCEPT);
     getApplicationContext().registerReceiver(mReceiver, filter);
     isRegistered = true;
   }
@@ -85,7 +97,7 @@ public class LwNotifyService extends Service {
       if (action.equals(LwConstants.ACTION_SHOW_NOTIFICATION)) {
         ReceiverHandler.updateActionChecks(true);
         registerBroadcastPressEvent();
-        showNotification(getApplicationContext(), intent);
+        showFullScreenNotification(getApplicationContext(), intent);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
           sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
         }
@@ -107,24 +119,24 @@ public class LwNotifyService extends Service {
 
   private void showFullScreenNotification(Context context, Intent intent) {
     Intent fullScreenIntent = new Intent(context, FullScreenNotification.class);
-    PendingIntent fullScreenPendingIntent = getModifiedIntents(context,intent, fullScreenIntent );
+    PendingIntent fullScreenPendingIntent = getModifiedIntents(context, intent, fullScreenIntent);
 
     Intent emptyScreenIntent = new Intent(context, ReceiverActivity.class);
-    PendingIntent emptyScreenPendingIntent = getModifiedIntents(context,intent, emptyScreenIntent );
+    PendingIntent emptyScreenPendingIntent = getModifiedIntents(context, intent, emptyScreenIntent);
 
-    Notification notification = getNotification(context, emptyScreenPendingIntent, fullScreenPendingIntent);
+    Notification notification = getNotification(context, fullScreenPendingIntent, fullScreenPendingIntent);
     startForeground(1, notification);
   }
 
   private void showNotification(Context context, Intent intent) {
     Intent emptyScreenIntent = new Intent(context, ReceiverActivity.class);
-    PendingIntent pendingIntent = getModifiedIntents(context,intent, emptyScreenIntent );
+    PendingIntent pendingIntent = getModifiedIntents(context, intent, emptyScreenIntent);
     Notification notification = getNotification(context, pendingIntent, pendingIntent);
     startForeground(1, notification);
   }
 
 
-  private PendingIntent getModifiedIntents(Context context, Intent originalIntent, Intent newIntent ){
+  private PendingIntent getModifiedIntents(Context context, Intent originalIntent, Intent newIntent) {
     Bundle bundle = originalIntent.getExtras();
     bundleData = bundle;
     newIntent.putExtras(bundle);
@@ -135,14 +147,16 @@ public class LwNotifyService extends Service {
   }
 
   private Uri getNotificationSound() {
-    try{
+    try {
       String customSound = bundleData.getString(LwConstants.KEY_NOTIFICATION_SOUND);
       Uri sound = RingtoneManager.getActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_RINGTONE);
-      if (customSound != null) {
-        sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + File.pathSeparator + File.separator + File.separator + getPackageName() + "/raw/" + customSound);
+      if (customSound != null && soundTypes.get(customSound) != null) {
+        sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + File.pathSeparator + File.separator + File.separator + getPackageName() + "/raw/" + soundTypes.get(customSound));
+      } else if (sound == null) {
+        sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
       }
       return sound;
-    } catch(Exception e) {
+    } catch (Exception e) {
       Log.e(TAG, e.getMessage());
     }
     return null;
@@ -154,18 +168,17 @@ public class LwNotifyService extends Service {
     createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
   }
 
-
   public void createNotificationChannel(String CHANNEL_ID, String CHANNEL_NAME) {
     NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
       Uri notificationSound = getNotificationSound();
 
-      if(notificationSound != null) {
+      if (notificationSound != null) {
         notificationChannel.setSound(notificationSound,
           new AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .setUsage(AudioAttributes.USAGE_ALARM)
             .build());
       }
 
@@ -196,7 +209,7 @@ public class LwNotifyService extends Service {
     notificationBuilder.setContentTitle(NOTIFICATION_TITLE)
       .setContentText(NOTIFICATION_INFO)
       .setPriority(NotificationCompat.PRIORITY_MAX)
-      .setCategory(NotificationCompat.CATEGORY_CALL)
+      .setCategory(NotificationCompat.CATEGORY_ALARM)
       .setContentIntent(initialIntent)
       .setSmallIcon(R.mipmap.ic_launcher)
       .addAction(
@@ -213,7 +226,6 @@ public class LwNotifyService extends Service {
       .setOngoing(true)
       .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
       .setVibrate(new long[]{0, 1000, 800})
-      .setSound(notificationSound)
       .setFullScreenIntent(finalIntent, true);
 
     if (KEY_TIMEOUT > 0) {
@@ -229,7 +241,7 @@ public class LwNotifyService extends Service {
   public void setTimeOutEndCall() {
     String NOTIFICATION_ID = bundleData.getString(LwConstants.KEY_NOTIFICATION_ID);
     int KEY_TIMEOUT = bundleData.getInt(LwConstants.KEY_TIMEOUT);
-    int TIME_OUT = KEY_TIMEOUT > DEFAULT_TIME_OUT_LIMIT ? KEY_TIMEOUT: DEFAULT_TIME_OUT_LIMIT;
+    int TIME_OUT = KEY_TIMEOUT > DEFAULT_TIME_OUT_LIMIT ? KEY_TIMEOUT : DEFAULT_TIME_OUT_LIMIT;
 
     callhandle = new Handler();
     handleTimeout = new Runnable() {
@@ -256,22 +268,22 @@ public class LwNotifyService extends Service {
   }
 
   private PendingIntent onButtonNotificationClick(int id, String action, String eventName) {
-    /*REJECT_ACTION*/
-    if (action == LwConstants.ACTION_REJECT) {
+
+    /*OPEN FULL SCREEN ACTIVITY*/
+    if(action == LwConstants.ACTION_DETAILS) {
+      Log.println(Log.INFO, TAG, "DETAILS_ACTION");
+      Intent fScreenIntent = new Intent(this, FullScreenNotification.class);
+      fScreenIntent.setAction(action);
+      fScreenIntent.putExtras(bundleData);
+      fScreenIntent.putExtra("eventName", eventName);
+      return PendingIntent.getActivity(this, 0, fScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    /*ACCEPT & REJECT ACTIONS*/
       Log.println(Log.INFO, TAG, "REJECT_ACTION");
       Intent buttonIntent = new Intent();
       buttonIntent.setAction(action);
       return PendingIntent.getBroadcast(this, id, buttonIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-    }
-
-    /*ACCEPT_ACTION*/
-    Log.println(Log.INFO, TAG, "ACCEPT_ACTION");
-    Intent emptyScreenIntent = new Intent(this, ReceiverActivity.class);
-    emptyScreenIntent.setAction(action);
-    emptyScreenIntent.putExtras(bundleData);
-    emptyScreenIntent.putExtra("eventName", eventName);
-    //TODO
-    return PendingIntent.getActivity(this, 0, emptyScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
   }
 
 
@@ -279,15 +291,17 @@ public class LwNotifyService extends Service {
     @Override
     public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
-      if (action != null && action.equals(LwConstants.ACTION_REJECT)) {
-        if(!ReceiverHandler.getClickStatus()) return;
+      if (action != null) {
         String NOTIFICATION_ID = bundleData.getString(LwConstants.KEY_NOTIFICATION_ID);
         WritableMap params = getOutputParams();
         params.putString(LwConstants.KEY_NOTIFICATION_ID, NOTIFICATION_ID);
-        params.putString(LwConstants.END_ACTION, LwConstants.ACTION_REJECT);
-        ReceiverHandler.updateActionChecks(true);
+        params.putString(LwConstants.END_ACTION, action);
         cancelTimer();
-        LwNotifyHeadsupModule.sendEventToJs(LwConstants.RNNotifyRejectAction, params);
+        if(action.equals(LwConstants.ACTION_REJECT)) {
+          LwNotifyHeadsupModule.sendEventToJs(LwConstants.RNNotifyRejectAction, params);
+        } else if (action.equals(LwConstants.ACTION_ACCEPT)) {
+          LwNotifyHeadsupModule.sendEventToJs(LwConstants.RNNotifyAcceptAction, params);
+        }
         stopForeground(true);
       }
     }

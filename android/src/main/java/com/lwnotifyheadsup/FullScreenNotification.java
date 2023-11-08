@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -23,6 +25,8 @@ public class FullScreenNotification extends AppCompatActivity {
   private TextView notificationId;
   private Button acceptButton;
   private Button rejectButton;
+
+  private Bundle bundleData;
 
   static boolean isNotificationActive = false;
 
@@ -82,22 +86,15 @@ public class FullScreenNotification extends AppCompatActivity {
         | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
 
     Bundle bundle = getIntent().getExtras();
-
+    bundleData = bundle;
     super.onCreate(savedInstanceState);
-
-    if (bundle.containsKey("customComponent") && bundle.getString("customComponent") != null) {
-      //handle custom notification
-    } else {
-      setContentView(R.layout.activity_full_screen_notification);
-    }
+    setContentView(R.layout.activity_full_screen_notification);
 
     //TODO: add multiple fields to the UI
     if (bundle != null) {
       notificationId = findViewById(R.id.notificationId);
-      if (bundle.containsKey("notificationId")) {
-        String name = bundle.getString("notificationId");
-        notificationId.setText(name);
-      }
+      String name = bundle.getString(LwConstants.KEY_NOTIFICATION_ID);
+      notificationId.setText(name);
     }
 
     acceptButton = findViewById(R.id.acceptButton);
@@ -106,18 +103,35 @@ public class FullScreenNotification extends AppCompatActivity {
     acceptButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
+        eventActionHandler(LwConstants.ACTION_ACCEPT);
+      }
+    });
 
+    rejectButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        eventActionHandler(LwConstants.ACTION_REJECT);
       }
     });
   }
 
-  private void acceptActionHandler() {
+  private void eventActionHandler(String action) {
     WritableMap params = Arguments.createMap();
-    Bundle bundle = getIntent().getExtras();
-    if (bundle.containsKey("payload")) {
-      params.putString("payload", bundle.getString("payload"));
+    String NOTIFICATION_ID = bundleData.getString(LwConstants.KEY_NOTIFICATION_ID);
+    if (bundleData.containsKey(LwConstants.KEY_PAYLOAD)) {
+      params.putString(LwConstants.KEY_PAYLOAD, bundleData.getString(LwConstants.KEY_PAYLOAD));
     }
-    params.putString("notificationId", "TEST_123");
+    params.putString(LwConstants.KEY_NOTIFICATION_ID, NOTIFICATION_ID);
+    params.putString(LwConstants.END_ACTION, action);
+
+    if (action == LwConstants.ACTION_ACCEPT) {
+      LwNotifyHeadsupModule.sendEventToJs(LwConstants.RNNotifyFullScreenAcceptAction, params);
+    } else if (action == LwConstants.ACTION_REJECT) {
+      LwNotifyHeadsupModule.sendEventToJs(LwConstants.RNNotifyFullScreenRejectAction, params);
+    }
+
+    stopService(new Intent(this, FullScreenNotification.class));
+    destroyActivity();
   }
 
 }

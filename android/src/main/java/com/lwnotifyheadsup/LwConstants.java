@@ -6,6 +6,8 @@ public class LwConstants {
   public static  final String ACTION_ACCEPT = "ACTION_ACCEPT_REQUEST";
   public static  final String ACTION_REJECT = "ACTION_REJECT_REQUEST";
 
+  public static  final String ACTION_DETAILS = "ACTION_DETAILS_REQUEST";
+
   public static  final String FULL_SCREEN_ACTION_ACCEPT = "FULL_SCREEN_ACTION_ACCEPT_REQUEST";
   public static  final String FULL_SCREEN_ACTION_REJECT = "FULL_SCREEN_ACTION_REJECT_REQUEST";
   public static  final String ACTION_SHOW_NOTIFICATION = "SHOW_NOTIFICATION";
@@ -18,6 +20,9 @@ public class LwConstants {
   /*REACT_EVENT_HANDLER_ACTIONS*/
   public static final String RNNotifyAcceptAction="RNNotifyAcceptAction";
   public static final String RNNotifyRejectAction ="RNNotifyRejectAction";
+
+  public static final String RNNotifyFullScreenAcceptAction="RNNotifyFullScreenAcceptAction";
+  public static final String RNNotifyFullScreenRejectAction ="RNNotifyFullScreenRejectAction";
 
 
 /* Notification Options*/

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
@@ -33,6 +34,9 @@ public class ReceiverHandler {
       case LwConstants.ACTION_ACCEPT:
         canPerformClick = false;
         handleNotificationActionIntent(context, intent);
+        break;
+      case LwConstants.ACTION_ON_PRESS_NOTIFICATION:
+        Log.d(TAG, "ON PRESS_NOTIFY");
         break;
     }
   }

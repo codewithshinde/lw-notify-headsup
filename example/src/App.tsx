@@ -7,14 +7,15 @@ export default function App() {
   const [result, setResult] = React.useState<string>();
 
   const displayNotiee = () => {
+    const uniqueIds = 'C-03-channel';
     LWNotify.displayNotification({
-      channelId: 'Channel123',
-      channelName: 'ChannelName',
-      notificationSound: 'default',
-      notificationId: 'Notification123',
+      channelId: uniqueIds,
+      channelName: uniqueIds,
+      notificationSound: 'type4',
+      notificationId: '3432drd',
       notificationTitle: 'ORDER ALERT',
-      notificationInfo: 'You can 30 sec to choose',
-      timeout: 6000,
+      notificationInfo: 'You can 40 sec to choose',
+      timeout: 10000,
       icon: 'ic_launcher',
       acceptText: 'Accept',
       rejectText: 'Reject',
