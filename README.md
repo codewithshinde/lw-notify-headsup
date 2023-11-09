@@ -2,6 +2,10 @@
 
 fullscreen notifications in react-native
 git commit -m "feat(package): bump version to v0.1.1"
+
+V0.1.3
+https://github.com/FeelRobotics/react-native-bring-to-foreground
+
 ## Installation
 
 ```sh
