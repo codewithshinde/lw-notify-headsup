@@ -1,5 +1,10 @@
 package com.lwnotifyheadsup;
 
+import android.content.Context;
+import android.content.res.Resources;
+
+import androidx.core.content.ContextCompat;
+
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
@@ -63,6 +68,24 @@ public class LwNotifyUtils {
       }
     }
     return array;
+  }
+
+
+  public int getResourceIdForResourceName(Context context, String resourceName) {
+    int resourceId = context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
+    if (resourceId == 0) {
+      resourceId = context.getResources().getIdentifier(resourceName, "mipmap", context.getPackageName());
+    }
+    return resourceId;
+  }
+
+  public int getColorForResourceName(Context context, String colorPath) {
+    // java
+    Resources res = context.getResources();
+    String packageName = context.getPackageName();
+    int colorId = res.getIdentifier(colorPath, "color", packageName);
+    int desiredColor = ContextCompat.getColor(context, colorId);
+    return desiredColor;
   }
 
 }

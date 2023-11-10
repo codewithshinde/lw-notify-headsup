@@ -1,5 +1,4 @@
-//import { NativeEventEmitter } from 'react-native';
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules, Platform, NativeEventEmitter } from 'react-native';
 
 const LINKING_ERROR =
   `The package 'react-native-lw-notify-headsup' doesn't seem to be linked. Make sure: \n\n` +
@@ -20,47 +19,101 @@ const LwNotifyHeadsup = NativeModules.LwNotifyHeadsup
       }
     );
 
-// let eventEmitter: any;
-// if (isAndroid) {
-//   eventEmitter = new NativeEventEmitter(LwNotifyHeadsup);
-// }
+let eventEmitter: any;
+if (isAndroid) {
+  eventEmitter = new NativeEventEmitter(LwNotifyHeadsup);
+}
 
-export interface foregroundOptionsModel {
+enum RNNotifyActions {
+  RNNotifyAcceptAction = 'RNNotifyAcceptAction',
+  RNNotifyRejectAction = 'RNNotifyRejectAction',
+  RNNotifyFullScreenAcceptAction = 'RNNotifyFullScreenAcceptAction',
+  RNNotifyFullScreenRejectAction = 'RNNotifyFullScreenRejectAction',
+}
+
+interface NotificationData {
   channelId: string;
   channelName: string;
-  notificationIcon: string;
+  notificationSound: string;
+  notificationId: string;
   notificationTitle: string;
-  notificationBody: string;
-  answerText: string;
-  declineText: string;
+  notificationInfo: string;
+  timeout: number;
+  icon?: string;
+  acceptText: string;
+  rejectText: string;
   notificationColor?: string;
-  notificationSound?: string;
-  mainComponent?: string;
   payload?: any;
 }
 
-export function multiply(a: number, b: number): Promise<number> {
-  return LwNotifyHeadsup.multiply(a, b);
+class LWNotify {
+  private eventsHandler;
+  isAndroid = Platform.OS === 'android';
+
+  constructor() {
+    this.eventsHandler = new Map();
+  }
+
+  displayNotification = (notifyOptions: NotificationData) => {
+    if (!isAndroid) return;
+    LwNotifyHeadsup.displayNotification(notifyOptions);
+  };
+
+  addEventListener = (type: string, handler: any) => {
+    if (!isAndroid) return;
+    let listener;
+    if (type === 'answer') {
+      listener = eventEmitter.addListener(
+        RNNotifyActions.RNNotifyAcceptAction,
+        (eventPayload: any) => {
+          handler(eventPayload);
+        }
+      );
+    } else if (type === 'endCall') {
+      listener = eventEmitter.addListener(
+        RNNotifyActions.RNNotifyRejectAction,
+        (eventPayload: any) => {
+          handler(eventPayload);
+        }
+      );
+    } else {
+      return;
+    }
+    this.eventsHandler.set(type, listener);
+  };
+
+  addFullScreenEventListener = (type: string, handler: any) => {
+    if (!isAndroid) return;
+    let listener;
+    if (type === 'accept') {
+      listener = eventEmitter.addListener(
+        RNNotifyActions.RNNotifyFullScreenAcceptAction,
+        (eventPayload: any) => {
+          handler(eventPayload);
+        }
+      );
+    } else if (type === 'reject') {
+      listener = eventEmitter.addListener(
+        RNNotifyActions.RNNotifyFullScreenRejectAction,
+        (eventPayload: any) => {
+          handler(eventPayload);
+        }
+      );
+    } else {
+      return;
+    }
+    this.eventsHandler.set(type, listener);
+  };
+
+  removeEventListener = (type: any) => {
+    if (!isAndroid) return;
+    const listener = this.eventsHandler.get(type);
+    if (!listener) {
+      return;
+    }
+    listener.remove();
+    this.eventsHandler.delete(type);
+  };
 }
 
-const displayNotification = (
-  uuid: string,
-  avatar: string | null,
-  timeout: number | null,
-  foregroundOptions: foregroundOptionsModel
-) => {
-  console.log('isAndroid', isAndroid);
-  if (!isAndroid) return;
-  LwNotifyHeadsup.displayNotification(
-    uuid,
-    avatar,
-    timeout ? timeout : 5000,
-    foregroundOptions
-  );
-};
-
-const displayFullScreenNotification = () => {
-  LwNotifyHeadsup.displayFullScreenNotification();
-};
-
-export { displayNotification, displayFullScreenNotification };
+export default new LWNotify();

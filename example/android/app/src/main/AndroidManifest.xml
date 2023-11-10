@@ -35,7 +35,7 @@
         android:showWhenLocked="true"
         android:turnScreenOn="true"
        />
-          <activity
+      <activity
       android:name="com.lwnotifyheadsup.FullScreenNotification"
               android:launchMode="singleTask"
         android:excludeFromRecents="true"
