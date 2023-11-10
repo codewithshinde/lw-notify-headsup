@@ -1,6 +1,6 @@
 {
   "name": "react-native-lw-notify-headsup",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "fullscreen notifications in react-native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
