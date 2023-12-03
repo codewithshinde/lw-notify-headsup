@@ -36,8 +36,17 @@
   },
   "keywords": [
     "react-native",
-    "ios",
-    "android"
+    "react-native-lw-notify-headsup",
+    "react-native-push-notifications",
+    "react-component push notification",
+    "react-native-component",
+    "push-notification",
+    "android",
+    "android push notifications",
+    "android headsup notifications",
+    "modal",
+    "popup notification",
+    "dialog"
   ],
   "repository": "https://github.com/codewithshinde/lw-notify-headsup",
   "author": "codewithshinde <codewithshinde@gmail.com> (https://github.com/codewithshinde)",
