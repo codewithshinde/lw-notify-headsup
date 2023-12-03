@@ -21,11 +21,16 @@ public class LwConstants {
   public static final String RNNotifyAcceptAction="RNNotifyAcceptAction";
   public static final String RNNotifyRejectAction ="RNNotifyRejectAction";
 
+  public static final String RNNotifyOpenAppAction ="RNNotifyOpenAppAction";
+
+
   public static final String RNNotifyFullScreenAcceptAction="RNNotifyFullScreenAcceptAction";
   public static final String RNNotifyFullScreenRejectAction ="RNNotifyFullScreenRejectAction";
+  public static final String RNNotifyFullScreenOpenAppAction ="RNNotifyFullScreenOpenAppAction";
 
 
-/* Notification Options*/
+
+  /* Notification Options*/
   public static  final String KEY_CHANNEL_ID = "channelId";
   public static  final String KEY_CHANNEL_NAME = "channelName";
   public static  final String KEY_NOTIFICATION_SOUND ="notificationSound";
@@ -38,6 +43,8 @@ public class LwConstants {
   public static final String KEY_REJECT_TEXT = "rejectText";
   public static final String KEY_NOTIFICATION_COLOR = "notificationColor";
   public static final String KEY_PAYLOAD = "payload";
+
+  public static final String SHOW_VIEW_DETAILS = "showViewDetails";
 
 
   /*PAYLOAD KEYS*/

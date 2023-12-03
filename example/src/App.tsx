@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import * as React from 'react';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
@@ -8,14 +9,14 @@ export default function App() {
 
   const displayNotiee = () => {
     const uniqueIds = 'C-03-channel';
-    LWNotify.displayNotification({
+    LWNotify.displayCallNotification({
       channelId: uniqueIds,
       channelName: uniqueIds,
       notificationSound: 'type4',
       notificationId: '3432drd',
       notificationTitle: 'ORDER ALERT',
       notificationInfo: 'You can 40 sec to choose',
-      timeout: 300000,
+      timeout: 120000,
       icon: 'ic_launcher',
       acceptText: 'Accept',
       rejectText: 'Reject',
@@ -24,6 +25,7 @@ export default function App() {
         key1: 'value1',
         key2: 'value2',
       },
+      showViewDetails: "false"
     });
 
     // Listen to headless action events

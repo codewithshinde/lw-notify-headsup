@@ -1,35 +1,35 @@
 package com.lwnotifyheadsup;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Color;
-import android.media.AudioAttributes;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.util.Log;
+  import android.app.Notification;
+  import android.app.NotificationChannel;
+  import android.app.NotificationManager;
+  import android.app.PendingIntent;
+  import android.app.Service;
+  import android.content.BroadcastReceiver;
+  import android.content.ContentResolver;
+  import android.content.Context;
+  import android.content.Intent;
+  import android.content.IntentFilter;
+  import android.graphics.Color;
+  import android.media.AudioAttributes;
+  import android.media.RingtoneManager;
+  import android.net.Uri;
+  import android.os.Build;
+  import android.os.Bundle;
+  import android.os.Handler;
+  import android.os.IBinder;
+  import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
+  import androidx.core.app.NotificationCompat;
 
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.WritableMap;
+  import com.facebook.react.bridge.Arguments;
+  import com.facebook.react.bridge.WritableMap;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+  import java.io.File;
+  import java.util.HashMap;
+  import java.util.Map;
 
-public class LwNotifyService extends Service {
+public class CallNotification extends Service {
   private static final String TAG = "LwNotifyService";
   private static Runnable handleTimeout;
   public static Handler callhandle;
@@ -46,7 +46,7 @@ public class LwNotifyService extends Service {
     }
   };
 
-  public LwNotifyService() {
+  public CallNotification() {
   }
 
   @Override
@@ -97,7 +97,7 @@ public class LwNotifyService extends Service {
       if (action.equals(LwConstants.ACTION_SHOW_NOTIFICATION)) {
         ReceiverHandler.updateActionChecks(true);
         registerBroadcastPressEvent();
-        showFullScreenNotification(getApplicationContext(), intent);
+        showNotification(getApplicationContext(), intent);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
           sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
         }
@@ -197,6 +197,8 @@ public class LwNotifyService extends Service {
     String NOTIFICATION_INFO = bundleData.getString(LwConstants.KEY_NOTIFICATION_INFO);
     String ACCEPT_TEXT = bundleData.getString(LwConstants.KEY_ACCEPT_TEXT);
     String REJECT_TEXT = bundleData.getString(LwConstants.KEY_REJECT_TEXT);
+    String SHOW_DETAILS  = bundleData.getString(LwConstants.SHOW_VIEW_DETAILS);
+
     int KEY_TIMEOUT = bundleData.getInt(LwConstants.KEY_TIMEOUT);
     Uri notificationSound = getNotificationSound();
 
@@ -209,7 +211,7 @@ public class LwNotifyService extends Service {
     notificationBuilder.setContentTitle(NOTIFICATION_TITLE)
       .setContentText(NOTIFICATION_INFO)
       .setPriority(NotificationCompat.PRIORITY_MAX)
-      .setCategory(NotificationCompat.CATEGORY_ALARM)
+      .setCategory(NotificationCompat.CATEGORY_CALL)
       .setContentIntent(initialIntent)
       .setSmallIcon(R.mipmap.ic_launcher)
       .addAction(
@@ -222,11 +224,20 @@ public class LwNotifyService extends Service {
         ACCEPT_TEXT,
         onButtonNotificationClick(1, LwConstants.ACTION_ACCEPT, LwConstants.ACTION_ACCEPT)
       )
-      .setAutoCancel(true)
+      //.setAutoCancel(false)
       .setOngoing(true)
       .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
       .setVibrate(new long[]{0, 1000, 800})
-      .setFullScreenIntent(finalIntent, true);
+      .setSound(notificationSound)
+      .setWhen(System.currentTimeMillis() + KEY_TIMEOUT); // will affect how long the notification stays visible
+
+    if (SHOW_DETAILS.equals("true")) {
+      notificationBuilder.addAction(
+        0,
+        "Show details",
+        onButtonNotificationClick(2, LwConstants.ACTION_DETAILS, LwConstants.ACTION_DETAILS)
+      );
+    }
 
     if (KEY_TIMEOUT > 0) {
       setTimeOutEndCall();
@@ -268,22 +279,11 @@ public class LwNotifyService extends Service {
   }
 
   private PendingIntent onButtonNotificationClick(int id, String action, String eventName) {
-
-    /*OPEN FULL SCREEN ACTIVITY*/
-    if(action == LwConstants.ACTION_DETAILS) {
-      Log.println(Log.INFO, TAG, "DETAILS_ACTION");
-      Intent fScreenIntent = new Intent(this, FullScreenNotification.class);
-      fScreenIntent.setAction(action);
-      fScreenIntent.putExtras(bundleData);
-      fScreenIntent.putExtra("eventName", eventName);
-      return PendingIntent.getActivity(this, 0, fScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-    }
-
-    /*ACCEPT & REJECT ACTIONS*/
-      Log.println(Log.INFO, TAG, "REJECT_ACTION");
-      Intent buttonIntent = new Intent();
-      buttonIntent.setAction(action);
-      return PendingIntent.getBroadcast(this, id, buttonIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    /*OPEN_APP, ACCEPT & REJECT ACTIONS*/
+    Log.println(Log.INFO, TAG, "OPEN_APP, ACCEPT, REJECT_ACTION");
+    Intent buttonIntent = new Intent();
+    buttonIntent.setAction(action);
+    return PendingIntent.getBroadcast(this, id, buttonIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
   }
 
 
@@ -301,6 +301,8 @@ public class LwNotifyService extends Service {
           LwNotifyHeadsupModule.sendEventToJs(LwConstants.RNNotifyRejectAction, params);
         } else if (action.equals(LwConstants.ACTION_ACCEPT)) {
           LwNotifyHeadsupModule.sendEventToJs(LwConstants.RNNotifyAcceptAction, params);
+        } else  if(action == LwConstants.ACTION_DETAILS) {
+          LwNotifyHeadsupModule.sendEventToJs(LwConstants.RNNotifyOpenAppAction, params);
         }
         stopForeground(true);
       }

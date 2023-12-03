@@ -48,5 +48,11 @@
       android:enabled="true"
       android:stopWithTask="false"
       android:exported="true" />
+      <service
+      android:name="com.lwnotifyheadsup.CallNotification"
+      android:enabled="true"
+      android:stopWithTask="false"
+      android:exported="true" />
     </application>
+
 </manifest>

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { NativeModules, Platform, NativeEventEmitter } from 'react-native';
 
 const LINKING_ERROR =
@@ -27,6 +28,7 @@ if (isAndroid) {
 enum RNNotifyActions {
   RNNotifyAcceptAction = 'RNNotifyAcceptAction',
   RNNotifyRejectAction = 'RNNotifyRejectAction',
+  RNNotifyOpenAppAction = 'RNNotifyOpenAppAction',
   RNNotifyFullScreenAcceptAction = 'RNNotifyFullScreenAcceptAction',
   RNNotifyFullScreenRejectAction = 'RNNotifyFullScreenRejectAction',
 }
@@ -46,6 +48,22 @@ interface NotificationData {
   payload?: any;
 }
 
+interface CallNotification {
+  channelId: string;
+  channelName: string;
+  notificationSound: string;
+  notificationId: string;
+  notificationTitle: string;
+  notificationInfo: string;
+  timeout: number;
+  icon?: string;
+  acceptText: string;
+  rejectText: string;
+  notificationColor?: string;
+  payload?: any;
+  showViewDetails: string;
+}
+
 class LWNotify {
   private eventsHandler;
   isAndroid = Platform.OS === 'android';
@@ -57,6 +75,11 @@ class LWNotify {
   displayNotification = (notifyOptions: NotificationData) => {
     if (!isAndroid) return;
     LwNotifyHeadsup.displayNotification(notifyOptions);
+  };
+
+  displayCallNotification = (notifyOptions: CallNotification) => {
+    if (!isAndroid) return;
+    LwNotifyHeadsup.displayCallNotification(notifyOptions);
   };
 
   addEventListener = (type: string, handler: any) => {
@@ -72,6 +95,13 @@ class LWNotify {
     } else if (type === 'endCall') {
       listener = eventEmitter.addListener(
         RNNotifyActions.RNNotifyRejectAction,
+        (eventPayload: any) => {
+          handler(eventPayload);
+        }
+      );
+    } else if (type === 'details') {
+      listener = eventEmitter.addListener(
+        RNNotifyActions.RNNotifyOpenAppAction,
         (eventPayload: any) => {
           handler(eventPayload);
         }

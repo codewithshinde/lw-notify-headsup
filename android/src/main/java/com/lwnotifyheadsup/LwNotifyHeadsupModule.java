@@ -156,6 +156,37 @@ public class LwNotifyHeadsupModule extends ReactContextBaseJavaModule {
     getReactApplicationContext().startService(intent);
   }
 
+
+  @ReactMethod
+  public void displayCallNotification(ReadableMap foregroundOptions) throws JSONException {
+    if (foregroundOptions == null) {
+      return;
+    }
+    Log.d(TAG, "displayNotification: invoked");
+    Intent intent = new Intent(getReactApplicationContext(), CallNotification.class);
+
+    intent.putExtra(LwConstants.KEY_NOTIFICATION_ID, foregroundOptions.getString(LwConstants.KEY_NOTIFICATION_ID));
+    intent.putExtra(LwConstants.KEY_NOTIFICATION_TITLE, foregroundOptions.getString(LwConstants.KEY_NOTIFICATION_TITLE));
+    intent.putExtra(LwConstants.KEY_NOTIFICATION_INFO, foregroundOptions.getString(LwConstants.KEY_NOTIFICATION_INFO));
+    intent.putExtra(LwConstants.KEY_CHANNEL_ID, foregroundOptions.getString(LwConstants.KEY_CHANNEL_ID));
+    intent.putExtra(LwConstants.KEY_CHANNEL_NAME, foregroundOptions.getString(LwConstants.KEY_CHANNEL_NAME));
+    intent.putExtra(LwConstants.KEY_TIMEOUT, foregroundOptions.getInt(LwConstants.KEY_TIMEOUT));
+    intent.putExtra(LwConstants.KEY_ICON, foregroundOptions.getString(LwConstants.KEY_ICON));
+    intent.putExtra(LwConstants.KEY_ACCEPT_TEXT, foregroundOptions.getString(LwConstants.KEY_ACCEPT_TEXT));
+    intent.putExtra(LwConstants.KEY_REJECT_TEXT, foregroundOptions.getString(LwConstants.KEY_REJECT_TEXT));
+    intent.putExtra(LwConstants.KEY_NOTIFICATION_COLOR, foregroundOptions.getString(LwConstants.KEY_NOTIFICATION_COLOR));
+    intent.putExtra(LwConstants.KEY_NOTIFICATION_SOUND, foregroundOptions.getString(LwConstants.KEY_NOTIFICATION_SOUND));
+    intent.putExtra(LwConstants.SHOW_VIEW_DETAILS, foregroundOptions.getString(LwConstants.SHOW_VIEW_DETAILS));
+
+    if (foregroundOptions.hasKey(LwConstants.KEY_PAYLOAD)) {
+      JSONObject payload = LwNotifyUtils.convertMapToJson(foregroundOptions.getMap(LwConstants.KEY_PAYLOAD));
+      intent.putExtra(LwConstants.KEY_PAYLOAD, payload.toString());
+    }
+
+    intent.setAction(LwConstants.ACTION_SHOW_NOTIFICATION);
+    getReactApplicationContext().startService(intent);
+  }
+
   @ReactMethod
   public void hideNotification() {
     if (FullScreenNotification.isNotificationActive) {
