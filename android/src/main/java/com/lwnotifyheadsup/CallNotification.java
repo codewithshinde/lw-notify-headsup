@@ -224,12 +224,11 @@ public class CallNotification extends Service {
         ACCEPT_TEXT,
         onButtonNotificationClick(1, LwConstants.ACTION_ACCEPT, LwConstants.ACTION_ACCEPT)
       )
-      //.setAutoCancel(false)
+      .setAutoCancel(false)
       .setOngoing(true)
       .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
       .setVibrate(new long[]{0, 1000, 800})
-      .setSound(notificationSound)
-      .setWhen(System.currentTimeMillis() + KEY_TIMEOUT); // will affect how long the notification stays visible
+      .setSound(notificationSound);
 
     if (SHOW_DETAILS.equals("true")) {
       notificationBuilder.addAction(
